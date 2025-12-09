@@ -8,7 +8,18 @@ from components.matching import find_matching
 
 favicon = Image.open("data-science-in-action\images\house.png")
 st.set_page_config(page_title="City Recommendation", layout="wide", page_icon=favicon)
-st.title("European City Recommendation System")
+
+st.markdown(
+    """
+    <h1 style='
+        background-color: lightblue;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    '>European City Recommendation System</h1>
+    """, 
+    unsafe_allow_html=True
+)
 
 # --- Load data ---
 @st.cache_data
@@ -17,38 +28,25 @@ def load_data():
 
 df = load_data()
 
-# --- Streamlit UI ---
-st.subheader("Set Your Preferences:")
+# --- Sidebar ---
 
-# Row 1
-col1, col2 = st.columns(2)
-
-with col1:
-    languages_available = ["Any"] + list(df['Main Spoken Languages'].str.split(',').explode().str.strip().unique())
-    lang_pref = st.selectbox(
+languages_available = ["Any"] + list(df['Main Spoken Languages'].str.split(',').explode().str.strip().unique())
+lang_pref = st.sidebar.selectbox(
         'Prefered Main Spoken Language',
-        languages_available
-    )
+        languages_available)
 
-with col2:
-    w_salary = st.number_input(
+w_salary = st.sidebar.number_input(
         "Your Monthly Salary (€)",
         min_value=0,
         max_value=20000,
         value=3000,
         step = 500)
     
-# Row 2
-c1, c2, c3, c4 = st.columns(4)
+w_unemployment = st.sidebar.slider("Unemployment Rate", min(df['Unemployment Rate']), max(df['Unemployment Rate']), np.mean(df['Unemployment Rate']))
 
-with c1:
-    w_unemployment = st.slider("Unemployment Rate", min(df['Unemployment Rate']), max(df['Unemployment Rate']), np.mean(df['Unemployment Rate']))
+w_gdp = st.sidebar.slider("GDP per Capita", 0, 10, 5)
 
-with c2:
-    w_gdp = st.slider("GDP per Capita", 0, 10, 5)
-
-with c3:
-    w_rent = st.slider(
+w_rent = st.sidebar.slider(
     "Average Rent Price",
     min_value=int(df['Average Rent Price'].min()),
     max_value=int(df['Average Rent Price'].max()),
@@ -56,22 +54,19 @@ with c3:
     step=50
 )
 
-with c4:
-    w_cost = st.slider(
-        "Average Cost of Living",
-        min_value=int(df['Average Cost of Living'].min()),
-        max_value=int(df['Average Cost of Living'].max()),
-        value=int(df['Average Cost of Living'].mean()),
-        step=50
+w_cost = st.sidebar.slider(
+    "Average Cost of Living",
+    min_value=int(df['Average Cost of Living'].min()),
+    max_value=int(df['Average Cost of Living'].max()),
+    value=int(df['Average Cost of Living'].mean()),
+    step=50
 )
 
-
-run_button = st.button("Find Matching Cities", type="primary")
-
+run_button = st.sidebar.button("Find Matching Cities", type="primary")
 results_placeholder = st.empty()
 
+# --- Page ---
 if run_button:
-    
     weights = {
         "Unemployment Rate": w_unemployment,
         "GDP per Capita": w_gdp,
@@ -83,19 +78,20 @@ if run_button:
     matching_cities = find_matching(df, user_language=lang_pref, weights=weights)
 
     if matching_cities.empty:
-        st.toast("No match found! try changing your preferences", icon="😪")
+        st.toast("No match found! Try changing your preferences", icon="😪")
     else:
         st.balloons()
-        max_size = 40
-        min_size = 15
-        n = len(matching_cities)
+        st.markdown(f"<h2 style='text-align:center'>We suggest you:", unsafe_allow_html=True)
 
-        for i, city in enumerate(matching_cities['City']):
-            size = max_size - i * (max_size - min_size) / max(n - 1, 1)
-            stars = "★" * (5 - i)  # 5 → 1 stars
-            st.markdown(
-                f"<p style='text-align:center; font-size:{size}px'>{city} {stars}</p>",
-                unsafe_allow_html=True)
+        st.markdown(
+            f"<h1 style='text-align:center; background-color:lightgreen;'>{matching_cities['City'].iloc[0]}</h1>",
+            unsafe_allow_html=True
+        )
+
+        st.divider()
+        st.markdown(f"<h3 style='text-align:center'>All the matching cities based on your preferences:", unsafe_allow_html=True)
+        st.dataframe(matching_cities)
+
 
 
     
