@@ -4,8 +4,6 @@
 
 This data science application helps users find their ideal living location based on lifestyle preferences. It utilizes a Recommendation System and Comparative Analysis tools to visualize and match users with cities.
 
----
-
 ## 📂 Project Structure
 
 ```text
@@ -19,7 +17,7 @@ This data science application helps users find their ideal living location based
 │       ├── Life Style Match.py
 │       ├── Recommendation System.py
 │       └── Where Should I Live.py
-
+```
 ## 🛠️ Installation & Setup Guide
 
 1. Open a terminal in the main directory.
@@ -30,13 +28,15 @@ This data science application helps users find their ideal living location based
    .\venv\Scripts\activate
    # Mac/Linux:
    source venv/bin/activate
+   ```
 3. Install the requirments
 ```bash
 pip install -r requirements.txt
+```
 4. Run the application using Streamlit:
 ```bash
 streamlit run '.\data-science-in-action\Where Should I Live.py'
-
+```
 ## Application Prviews
 ![Welcome Page](data-science-in-action\images\first-page.png)
 
